@@ -15,7 +15,7 @@ class UserManager(BaseUserManager):
         if email:
             email = self.normalize_email(email)
         
-        extra_fields.setdefault('role', User.CUSTOMER)
+        extra_fields.setdefault('role', User.STUDENT)
         user = self.model(email=email, phone_number=phone_number, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

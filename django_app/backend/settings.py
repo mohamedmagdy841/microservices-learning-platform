@@ -205,3 +205,16 @@ DJOSER = {
         'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
     },
 }
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost"
+]
+
+LOGIN_REDIRECT_URL = '/'
+FRONTEND_URL = config('FRONTEND_URL', 'http://localhost:3000')
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailOrPhoneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
