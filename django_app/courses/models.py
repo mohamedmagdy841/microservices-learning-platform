@@ -27,7 +27,7 @@ class Category(models.Model):
  
 class Course(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses')
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Enrollment', related_name="enrollments")
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Enrollment', related_name="enrolled_courses")
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -48,7 +48,7 @@ class Course(models.Model):
         return self.title
 
 class Enrollment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_enrollments")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="enrollments")
     progress = models.DecimalField(
         max_digits=5, decimal_places=2, default=0.00,
