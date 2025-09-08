@@ -1,4 +1,5 @@
 from django.urls import path, include
+from debug_toolbar.toolbar import debug_toolbar_urls
 from accounts.views import (
     CustomLoginView,
     CustomRegisterView,
@@ -22,4 +23,4 @@ urlpatterns = [
     
     # Courses
     path('courses/', include('courses.urls')),
-]
+] + debug_toolbar_urls()
