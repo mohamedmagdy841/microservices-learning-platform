@@ -23,8 +23,8 @@ class Subscription(models.Model):
         CANCELED = "canceled", "Canceled"
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name="subscriptions")
-    start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField()
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
