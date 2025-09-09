@@ -26,6 +26,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
 # Payment
 # ------------------------
 class PaymentSerializer(serializers.ModelSerializer):
+    subscription = serializers.CharField(source="subscription.plan.name")
+    
     class Meta:
         model = Payment
         fields = [
@@ -34,6 +36,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "amount",
             "status",
             "created_at",
+            "subscription",
         ]
 
 
@@ -67,19 +70,4 @@ class SubscriptionDetailSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "payments",
-        ]
-
-
-# ------------------------
-# User-Scoped Subscription
-# ------------------------
-class UserSubscriptionSerializer(serializers.ModelSerializer):
-    subscriptions = SubscriptionListSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "email",
-            "subscriptions",
         ]
