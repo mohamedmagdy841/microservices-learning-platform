@@ -23,4 +23,7 @@ urlpatterns = [
     
     # Courses
     path('courses/', include('courses.urls')),
+    
+    # Subscriptions
+    path('subscriptions/', include('subscriptions.urls')),
 ] + debug_toolbar_urls()
