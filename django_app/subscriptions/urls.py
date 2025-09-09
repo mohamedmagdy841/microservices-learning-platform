@@ -6,6 +6,7 @@ from .views import (
     SubscriptionDetailView,
     PaymentListView,
     PaymentDetailView,
+    SubscriptionCheckoutView,
 )
 
 urlpatterns = [
@@ -16,6 +17,9 @@ urlpatterns = [
     # Payments
     path("payments/", PaymentListView.as_view()),
     path("payments/<int:pk>/", PaymentDetailView.as_view()),
+    
+    # Checkout flow
+    path("checkout/", SubscriptionCheckoutView.as_view()),
     
     # Subscriptions
     path("", SubscriptionListView.as_view()),

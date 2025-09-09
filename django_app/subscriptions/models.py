@@ -21,6 +21,7 @@ class Subscription(models.Model):
         ACTIVE = "active", "Active"
         EXPIRED = "expired", "Expired"
         CANCELED = "canceled", "Canceled"
+        PENDING = "pending", "Pending"
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name="subscriptions")
     start_date = models.DateTimeField(auto_now_add=True)

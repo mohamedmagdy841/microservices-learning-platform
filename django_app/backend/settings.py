@@ -223,3 +223,6 @@ AUTHENTICATION_BACKENDS = [
     'accounts.backends.EmailOrPhoneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Stripe
+STRIPE_SECRET_KEY=config("STRIPE_SECRET_KEY")
