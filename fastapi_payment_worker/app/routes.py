@@ -18,11 +18,12 @@ async def stripe_webhook(request: Request):
         )
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    data = event["data"]["object"]
 
-    if event["type"] in ["checkout.session.completed", "invoice.payment_succeeded", "invoice.payment_failed"]:
-        data = event["data"]["object"]
-
+    if event["type"] == "checkout.session.completed":
         subscription_id = data.get("metadata", {}).get("subscription_id")
+
         if not subscription_id:
             raise HTTPException(status_code=400, detail="Missing subscription_id metadata")
 
@@ -30,9 +31,13 @@ async def stripe_webhook(request: Request):
             subscription_id=int(subscription_id),
             stripe_payment_id=data.get("payment_intent") or data.get("id"),
             amount=float(data.get("amount_total", 0)) / 100,
-            status=PaymentStatus.success if event["type"] in ["checkout.session.completed", "invoice.payment_succeeded"] else PaymentStatus.failed
+            status=PaymentStatus.success,
         )
 
         publish_payment_event(payment_event)
+        print("Published event to RabbitMQ")
+
+    elif event["type"] == "invoice.payment_failed":
+        print("Invoice payment failed:", data.get("id"))
 
     return {"status": "ok"}
