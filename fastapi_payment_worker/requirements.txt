@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pika          # RabbitMQ client
+httpx         # async HTTP requests to Django
+stripe
+python-dotenv
