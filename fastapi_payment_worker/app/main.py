@@ -1,7 +1,5 @@
 from fastapi import FastAPI
+from .routes import router
 
-app = FastAPI()
-
-@app.get("/")
-def root():
-    return {"message": "Hello from FastAPI Payment Worker"}
+app = FastAPI(title="Payment Worker Service")
+app.include_router(router, prefix="/payments", tags=["payments"])
