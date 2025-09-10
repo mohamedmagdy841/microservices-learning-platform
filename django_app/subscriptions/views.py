@@ -4,12 +4,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .services.stripe_service import create_checkout_session
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from .models import SubscriptionPlan, Subscription, Payment
+from .permissions import IsServiceToken
 from .serializers import (
     SubscriptionPlanSerializer,
     SubscriptionListSerializer,
     SubscriptionDetailSerializer,
     PaymentSerializer,
+    PaymentCallbackSerializer,
 )
 
 User = get_user_model()
@@ -101,3 +104,31 @@ class SubscriptionCheckoutView(APIView):
             return Response({"error": str(e.user_message or str(e))}, status=400)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+class PaymentCallbackView(APIView):
+    permission_classes = [IsServiceToken]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PaymentCallbackSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        subscription = get_object_or_404(Subscription, id=data["subscription_id"])
+
+        payment, _ = Payment.objects.update_or_create(
+            stripe_payment_id=data["stripe_payment_id"],
+            defaults={
+                "subscription": subscription,
+                "amount": data["amount"],
+                "status": data["status"],
+            },
+        )
+
+        # Update subscription status
+        if data["status"] == Payment.Status.SUCCESS:
+            subscription.status = Subscription.Status.ACTIVE
+        elif data["status"] == Payment.Status.FAILED:
+            subscription.status = Subscription.Status.CANCELED
+        subscription.save(update_fields=["status"])
+
+        return Response({"message": "Payment processed"}, status=status.HTTP_200_OK)

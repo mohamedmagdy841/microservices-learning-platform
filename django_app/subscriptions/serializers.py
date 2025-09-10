@@ -39,6 +39,16 @@ class PaymentSerializer(serializers.ModelSerializer):
             "subscription",
         ]
 
+class PaymentCallbackSerializer(serializers.Serializer):
+    subscription_id = serializers.IntegerField()
+    stripe_payment_id = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=8, decimal_places=2)
+    status = serializers.ChoiceField(choices=Payment.Status.choices)
+
+    def validate_subscription_id(self, value):
+        if not Subscription.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Invalid subscription_id")
+        return value
 
 # ------------------------
 # Subscription

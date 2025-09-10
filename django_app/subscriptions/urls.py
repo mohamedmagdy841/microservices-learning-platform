@@ -7,6 +7,7 @@ from .views import (
     PaymentListView,
     PaymentDetailView,
     SubscriptionCheckoutView,
+    PaymentCallbackView,
 )
 
 urlpatterns = [
@@ -17,6 +18,7 @@ urlpatterns = [
     # Payments
     path("payments/", PaymentListView.as_view()),
     path("payments/<int:pk>/", PaymentDetailView.as_view()),
+    path("payments/callback/", PaymentCallbackView.as_view()),
     
     # Checkout flow
     path("checkout/", SubscriptionCheckoutView.as_view()),

@@ -9,7 +9,7 @@ def callback(ch, method, properties, body):
     # Notify Django
     with httpx.Client() as client:
         response = client.post(
-            f"{settings.DJANGO_API_URL}/subscriptions/payment-callback/",
+            f"{settings.DJANGO_API_URL}/subscriptions/payments/callback/",
             headers={"Authorization": f"Token {settings.DJANGO_API_TOKEN}"},
             json=event.dict(),
         )
