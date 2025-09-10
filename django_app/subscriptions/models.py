@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
 
 class SubscriptionPlan(models.Model):
     stripe_plan_id = models.CharField(
@@ -15,22 +16,33 @@ class SubscriptionPlan(models.Model):
 
     def __str__(self):
         return f"{self.name} (${self.price})"
-    
+
+class SubscriptionStatus(models.TextChoices):
+    ACTIVE = "active", "Active"
+    EXPIRED = "expired", "Expired"
+    CANCELED = "canceled", "Canceled"
+    PENDING = "pending", "Pending"
+           
 class Subscription(models.Model):
-    class Status(models.TextChoices):
-        ACTIVE = "active", "Active"
-        EXPIRED = "expired", "Expired"
-        CANCELED = "canceled", "Canceled"
-        PENDING = "pending", "Pending"
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, related_name="subscriptions")
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
-        choices=Status.choices,
-        default=Status.ACTIVE,
+        choices=SubscriptionStatus.choices,
+        default=SubscriptionStatus.ACTIVE,
     )
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=Q(status=SubscriptionStatus.ACTIVE),
+                name="unique_active_subscription_per_user"
+            )
+        ]
     
     def __str__(self):
         return f"{self.plan.name} ({self.status})"

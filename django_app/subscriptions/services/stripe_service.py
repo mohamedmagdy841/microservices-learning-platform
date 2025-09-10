@@ -1,6 +1,6 @@
 import stripe
 from django.conf import settings
-from ..models import Subscription, SubscriptionPlan
+from ..models import Subscription, SubscriptionPlan, SubscriptionStatus
 from django.db import transaction
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -13,7 +13,7 @@ def create_checkout_session(user, plan_id):
             subscription = Subscription.objects.create(
                 user=user,
                 plan=plan,
-                status=Subscription.Status.PENDING
+                status=SubscriptionStatus.PENDING
             )
 
             session = stripe.checkout.Session.create(

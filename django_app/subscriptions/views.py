@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from .services.stripe_service import create_checkout_session
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from .models import SubscriptionPlan, Subscription, Payment
+from .models import SubscriptionPlan, Subscription, Payment, SubscriptionStatus
+from django.utils.timezone import now
 from .permissions import IsServiceToken
 from .serializers import (
     SubscriptionPlanSerializer,
@@ -94,6 +95,18 @@ class SubscriptionCheckoutView(APIView):
         if not plan_id:
             return Response({"error": "plan_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        has_active = Subscription.objects.filter(
+            user=request.user,
+            status=SubscriptionStatus.ACTIVE,
+            end_date__gte=now()
+        ).exists()
+
+        if has_active:
+            return Response(
+                {"error": "You already have an active subscription."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
         try:
             session, subscription = create_checkout_session(
                 user=request.user,
@@ -126,9 +139,9 @@ class PaymentCallbackView(APIView):
 
         # Update subscription status
         if data["status"] == Payment.Status.SUCCESS:
-            subscription.status = Subscription.Status.ACTIVE
+            subscription.status = SubscriptionStatus.ACTIVE
         elif data["status"] == Payment.Status.FAILED:
-            subscription.status = Subscription.Status.CANCELED
+            subscription.status = SubscriptionStatus.CANCELED
         subscription.save(update_fields=["status"])
 
         return Response({"message": "Payment processed"}, status=status.HTTP_200_OK)

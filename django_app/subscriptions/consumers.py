@@ -2,7 +2,7 @@ import json
 import pika
 from django.conf import settings
 from django.db import transaction
-from .models import Subscription, Payment
+from .models import Subscription, Payment, SubscriptionStatus
 
 def callback(ch, method, properties, body):
     print("Django consumer received")
@@ -27,9 +27,9 @@ def callback(ch, method, properties, body):
             )
 
             if status == Payment.Status.SUCCESS:
-                subscription.status = Subscription.Status.ACTIVE
+                subscription.status = SubscriptionStatus.ACTIVE
             elif status == Payment.Status.FAILED:
-                subscription.status = Subscription.Status.CANCELED
+                subscription.status = SubscriptionStatus.CANCELED
             subscription.save(update_fields=["status"])
 
         print("Processed payment")
