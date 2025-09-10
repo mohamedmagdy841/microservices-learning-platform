@@ -41,6 +41,7 @@ class CourseListView(generics.ListAPIView):
         .filter(is_published=True)
         .select_related("category")
         .prefetch_related("modules", "enrollments")
+        .order_by("-created_at")
     )
 
 class CourseDetailView(generics.RetrieveAPIView):

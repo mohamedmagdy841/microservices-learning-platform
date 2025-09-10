@@ -17,6 +17,7 @@ class Category(models.Model):
     
     class Meta:
         verbose_name_plural = "Categories"
+        ordering = ["name"]
         
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -58,6 +59,8 @@ class Enrollment(models.Model):
     
     class Meta:
         unique_together = ('user', 'course')
+        ordering = ["progress"]
+        
         
     def __str__(self):
         return f"{self.user} enrolled in {self.course}"
@@ -95,6 +98,7 @@ class LessonProgress(models.Model):
 
     class Meta:
         unique_together = ('enrollment', 'lesson')
+        ordering = ["progress"]
     
     @property
     def is_completed(self):
