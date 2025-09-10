@@ -217,7 +217,7 @@ INTERNAL_IPS = [
 ]
 
 LOGIN_REDIRECT_URL = '/'
-FRONTEND_URL = config('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
 
 AUTHENTICATION_BACKENDS = [
     'accounts.backends.EmailOrPhoneBackend',
@@ -229,3 +229,9 @@ STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY")
 
 # FastAPI Payment Service Worker
 SERVICE_API_TOKEN = config("SERVICE_API_TOKEN")
+
+# RabbitMQ
+RABBITMQ_HOST = config("RABBITMQ_HOST", default="localhost")
+RABBITMQ_USER = config("RABBITMQ_USER")
+RABBITMQ_PASS = config("RABBITMQ_PASS")
+RABBITMQ_QUEUE = config("RABBITMQ_QUEUE")
