@@ -4,8 +4,9 @@ from .views import (
     CourseDetailView,
     CategoryListView,
     CategoryDetailView,
-    EnrollmentListView,
-    LessonProgressListView
+    EnrollmentListCreateView,
+    LessonProgressListView,
+    EnrollmentDetailView
 )
 urlpatterns = [    
     # ------------------------
@@ -17,7 +18,8 @@ urlpatterns = [
     # ------------------------
     # Enrollment Endpoints
     # ------------------------
-    path("enrollments/", EnrollmentListView.as_view()),
+    path("enrollments/", EnrollmentListCreateView.as_view()),
+    path("enrollments/<int:pk>/", EnrollmentDetailView.as_view()),
 
     # ------------------------
     # Lesson Progress Endpoints

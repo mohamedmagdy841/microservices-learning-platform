@@ -1,5 +1,7 @@
 from .pagination import CustomPagination
 from rest_framework import generics, permissions
+from .permissions import HasActiveSubscription
+
 from .serializers import (
     CategorySerializer,
     CourseListSerializer,
@@ -56,10 +58,25 @@ class CourseDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Enrollment Views
 # ------------------------
-class EnrollmentListView(generics.ListAPIView):
+class EnrollmentListCreateView(generics.ListCreateAPIView):
     serializer_class = EnrollmentSerializer
     pagination_class = CustomPagination
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [HasActiveSubscription]
+
+    def get_queryset(self):
+        return (
+            Enrollment.objects.filter(user=self.request.user)
+            .select_related("course__category")
+            .prefetch_related("course__modules", "course__enrollments")
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class EnrollmentDetailView(generics.RetrieveDestroyAPIView):
+    serializer_class = EnrollmentSerializer
+    permission_classes = [HasActiveSubscription]
 
     def get_queryset(self):
         return (
@@ -75,7 +92,7 @@ class EnrollmentListView(generics.ListAPIView):
 class LessonProgressListView(generics.ListAPIView):
     serializer_class = LessonProgressSerializer
     pagination_class = CustomPagination
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, HasActiveSubscription]
 
     def get_queryset(self):
         return (

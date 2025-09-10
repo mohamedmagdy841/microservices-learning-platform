@@ -35,6 +35,15 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ["id", "title", "video_url", "order_index"]
+        
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        user = self.context["request"].user
+        from subscriptions.utils import has_active_subscription
+        
+        if not (user.is_authenticated and has_active_subscription(user)):
+            data.pop("video_url", None)
+        return data
 
 
 # ------------------------
@@ -98,7 +107,17 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 # ------------------------
 class EnrollmentSerializer(serializers.ModelSerializer):
     course = CourseListSerializer(read_only=True)
+    course_id = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all(), source="course", write_only=True
+    )
 
     class Meta:
         model = Enrollment
-        fields = ["id", "course", "progress", "enrolled_at"]
+        fields = ["id", "course", "course_id", "progress", "enrolled_at"]
+
+    def validate_course_id(self, value):
+        user = self.context["request"].user
+        if Enrollment.objects.filter(user=user, course=value).exists():
+            raise serializers.ValidationError("Already enrolled in this course.")
+        return value
+
