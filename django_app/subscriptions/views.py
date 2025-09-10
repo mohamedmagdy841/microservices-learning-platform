@@ -1,4 +1,4 @@
-# subscriptions/views.py
+import stripe
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -91,14 +91,13 @@ class SubscriptionCheckoutView(APIView):
         if not plan_id:
             return Response({"error": "plan_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        success_url = request.build_absolute_uri("/success/")
-        cancel_url = request.build_absolute_uri("/cancel/")
-
-        session, subscription = create_checkout_session(
-            user=request.user,
-            plan_id=plan_id,
-            success_url=success_url,
-            cancel_url=cancel_url,
-        )
-
-        return Response({"checkout_url": session.url})
+        try:
+            session, subscription = create_checkout_session(
+                user=request.user,
+                plan_id=plan_id,
+            )
+            return Response({"checkout_url": session.url})
+        except stripe.error.StripeError as e:
+            return Response({"error": str(e.user_message or str(e))}, status=400)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
