@@ -26,4 +26,7 @@ urlpatterns = [
     
     # Subscriptions
     path('subscriptions/', include('subscriptions.urls')),
+    
+    # Quizzes
+    path('quizzes/', include('quizzes.urls')),
 ] + debug_toolbar_urls()
