@@ -55,6 +55,7 @@ class Enrollment(models.Model):
         max_digits=5, decimal_places=2, default=0.00,
         validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
+    completed = models.BooleanField(default=False) # will be set to True by FastAPI event
     enrolled_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
