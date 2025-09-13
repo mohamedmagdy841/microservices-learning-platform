@@ -1,7 +1,15 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
+from django.forms.models import BaseInlineFormSet
+from django.core.exceptions import ValidationError
 from .models import Quiz, Question, QuizAttempt, QuizAnswer
 
+class QuestionInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        total_forms = len([form for form in self.forms if form.cleaned_data and not form.cleaned_data.get("DELETE", False)])
+        if total_forms > 5:
+            raise ValidationError("A quiz cannot have more than 5 questions.")
 
 class QuestionInline(admin.TabularInline):
     model = Question
@@ -10,9 +18,9 @@ class QuestionInline(admin.TabularInline):
 
 @admin.register(Quiz)
 class QuizAdmin(ModelAdmin):
-    list_display = ("id", "title", "module", "created_at")
-    list_filter = ("created_at", "module")
-    search_fields = ("title", "module__title")
+    list_display = ("id", "title", "course", "created_at")
+    list_filter = ("created_at", "course")
+    search_fields = ("title", "course__title")
     inlines = [QuestionInline]
 
 

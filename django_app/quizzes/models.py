@@ -14,6 +14,7 @@ class Quiz(models.Model):
 
     class Meta:
         ordering = ["created_at"]
+        verbose_name_plural = "Quizzes"
         constraints = [
             models.UniqueConstraint(
                 fields=["course"],
@@ -39,8 +40,17 @@ class Question(models.Model):
         return f"Q{self.id} - {self.text[:50]}"
     
     def clean(self):
+        if self.quiz_id is None:
+            return
         if self.quiz.questions.count() >= 5 and not self.pk:
             raise ValidationError("A quiz cannot have more than 5 questions.")
+        
+        if self.options is not None:
+            if not isinstance(self.options, list):
+                raise ValidationError("Options must be a list.")
+            
+            if len(self.options) < 2 or len(self.options) > 5:
+                raise ValidationError("Each question must have between 2 and 5 options.")
 
 
 class QuizAttempt(models.Model):

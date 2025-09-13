@@ -6,7 +6,8 @@ from .views import (
     CategoryDetailView,
     EnrollmentListCreateView,
     LessonProgressListView,
-    EnrollmentDetailView
+    EnrollmentDetailView,
+    CourseQuizDetailView
 )
 urlpatterns = [    
     # ------------------------
@@ -31,4 +32,9 @@ urlpatterns = [
     # ------------------------
     path('', CourseListView.as_view()),
     path('<slug:slug>/', CourseDetailView.as_view()),
+    
+    # ------------------------
+    # Course Quiz Endpoint
+    # ------------------------
+    path("<int:course_id>/quiz/", CourseQuizDetailView.as_view()),
 ]

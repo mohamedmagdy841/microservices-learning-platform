@@ -1,7 +1,7 @@
 from .pagination import CustomPagination
 from rest_framework import generics, permissions
 from .permissions import HasActiveSubscription
-
+from django.shortcuts import get_object_or_404
 from .serializers import (
     CategorySerializer,
     CourseListSerializer,
@@ -9,12 +9,14 @@ from .serializers import (
     EnrollmentSerializer,
     LessonProgressSerializer
 )
+from quizzes.serializers import QuizSerializer
 from .models import (
     Category,
     Course,
     Enrollment,
     LessonProgress
 )
+from quizzes.models import Quiz
 
 # ------------------------
 # Category Views
@@ -99,4 +101,19 @@ class LessonProgressListView(generics.ListAPIView):
         return (
             LessonProgress.objects.filter(enrollment__user=self.request.user)
             .select_related("lesson", "enrollment__course")
+        )
+
+# ------------------------
+# Course Quiz View
+# ------------------------
+class CourseQuizDetailView(generics.RetrieveAPIView):
+    serializer_class = QuizSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        course_id = self.kwargs["course_id"]
+        course = get_object_or_404(Course, id=course_id)
+        return get_object_or_404(
+            Quiz.objects.prefetch_related("questions"),
+            course=course
         )
