@@ -6,12 +6,10 @@ from app.grader import grade_quiz
 
 def callback(ch, method, properties, body):
     data = json.loads(body)
-    print("[x] Received quiz submission:", data)
 
     attempt_id = data["attempt_id"]
     answers = data["answers"]
 
-    # grade with AI (stub for now)
     result = grade_quiz(answers)
 
     payload = {
@@ -21,7 +19,6 @@ def callback(ch, method, properties, body):
         "answers": result["answers"],
     }
 
-    # call Django callback
     url = f"{settings.DJANGO_API_URL}/quiz/grading-callback/"
     headers = {"Authorization": f"Token {settings.DJANGO_API_TOKEN}"}
     try:

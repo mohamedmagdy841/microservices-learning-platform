@@ -33,8 +33,13 @@ class QuizAttemptListCreateView(generics.ListCreateAPIView):
 
         # prepare answers for RabbitMQ
         answers = [
-            {"question_id": ans.question.id, "chosen_answer": ans.chosen_answer}
-            for ans in attempt.answers.all()
+            {
+                "question_id": ans.question.id,
+                "question_text": ans.question.text,
+                "correct_answer": ans.question.correct_answer,
+                "chosen_answer": ans.chosen_answer,
+            }
+            for ans in attempt.answers.select_related("question").all()
         ]
 
         # publish quiz_submitted event
@@ -44,6 +49,7 @@ class QuizAttemptListCreateView(generics.ListCreateAPIView):
             user_id=attempt.user.id,
             answers=answers,
         )
+
 
 
 class QuizAttemptDetailView(generics.RetrieveAPIView):
