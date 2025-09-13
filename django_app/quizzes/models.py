@@ -1,9 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 from courses.models import Course
 
 class Quiz(models.Model):
-    module = models.ForeignKey(
+    course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
         related_name="quizzes"
@@ -13,9 +14,15 @@ class Quiz(models.Model):
 
     class Meta:
         ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["course"],
+                name="unique_quiz_per_course"
+            )
+        ]
 
     def __str__(self):
-        return f"{self.title} ({self.module})"
+        return f"{self.title} ({self.course})"
 
 
 class Question(models.Model):
@@ -30,6 +37,10 @@ class Question(models.Model):
 
     def __str__(self):
         return f"Q{self.id} - {self.text[:50]}"
+    
+    def clean(self):
+        if self.quiz.questions.count() >= 5 and not self.pk:
+            raise ValidationError("A quiz cannot have more than 5 questions.")
 
 
 class QuizAttempt(models.Model):
