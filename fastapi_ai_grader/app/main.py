@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from .consumers import start_consumer
-import threading
 
 app = FastAPI(title="AI Quiz Grader Service")
 
