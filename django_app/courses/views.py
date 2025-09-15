@@ -16,17 +16,36 @@ from .models import (
     Enrollment,
     LessonProgress
 )
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+)
 from quizzes.models import Quiz
 
 # ------------------------
 # Category Views
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Categories"],
+        summary="List categories",
+        description="Retrieve a paginated list of all categories.",
+        responses={200: CategorySerializer},
+    )
+)
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
 
-
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Categories"],
+        summary="Retrieve category details",
+        description="Retrieve details of a single category by slug.",
+        responses={200: CategorySerializer},
+    )
+)
 class CategoryDetailView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -35,6 +54,14 @@ class CategoryDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Course Views
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Courses"],
+        summary="List published courses",
+        description="Retrieve a paginated list of all published courses with categories and enrollments.",
+        responses={200: CourseListSerializer},
+    )
+)
 class CourseListView(generics.ListAPIView):
     serializer_class = CourseListSerializer
     pagination_class = CustomPagination
@@ -46,6 +73,14 @@ class CourseListView(generics.ListAPIView):
         .order_by("-created_at")
     )
 
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Courses"],
+        summary="Retrieve course details",
+        description="Retrieve details of a single published course by slug, including modules and lessons.",
+        responses={200: CourseDetailSerializer},
+    )
+)
 class CourseDetailView(generics.RetrieveAPIView):
     serializer_class = CourseDetailSerializer
     queryset = (
@@ -61,6 +96,20 @@ class CourseDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Enrollment Views
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Enrollments"],
+        summary="List user enrollments",
+        description="Retrieve a paginated list of the authenticated user's course enrollments.",
+        responses={200: EnrollmentSerializer},
+    ),
+    post=extend_schema(
+        tags=["Enrollments"],
+        summary="Create enrollment",
+        description="Enroll the authenticated user into a course.",
+        responses={201: EnrollmentSerializer},
+    )
+)
 class EnrollmentListCreateView(generics.ListCreateAPIView):
     serializer_class = EnrollmentSerializer
     pagination_class = CustomPagination
@@ -77,6 +126,20 @@ class EnrollmentListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Enrollments"],
+        summary="Retrieve enrollment details",
+        description="Retrieve details of a specific enrollment for the authenticated user.",
+        responses={200: EnrollmentSerializer},
+    ),
+    delete=extend_schema(
+        tags=["Enrollments"],
+        summary="Unenroll from a course",
+        description="Delete the specified enrollment (unenroll the user from the course).",
+        responses={204: None},
+    )
+)
 class EnrollmentDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = EnrollmentSerializer
     permission_classes = [HasActiveSubscription]
@@ -92,6 +155,14 @@ class EnrollmentDetailView(generics.RetrieveDestroyAPIView):
 # ------------------------
 # Lesson Progress Views
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Lesson Progress"],
+        summary="List lesson progress",
+        description="Retrieve a paginated list of lesson progress for the authenticated user.",
+        responses={200: LessonProgressSerializer},
+    )
+)
 class LessonProgressListView(generics.ListAPIView):
     serializer_class = LessonProgressSerializer
     pagination_class = CustomPagination
@@ -106,6 +177,14 @@ class LessonProgressListView(generics.ListAPIView):
 # ------------------------
 # Course Quiz View
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Quizzes"],
+        summary="Retrieve course quiz",
+        description="Retrieve the quiz associated with a course by course ID, including questions.",
+        responses={200: QuizSerializer},
+    )
+)
 class CourseQuizDetailView(generics.RetrieveAPIView):
     serializer_class = QuizSerializer
     permission_classes = [permissions.IsAuthenticated]

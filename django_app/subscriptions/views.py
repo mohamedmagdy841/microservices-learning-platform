@@ -15,18 +15,43 @@ from .serializers import (
     PaymentSerializer,
     PaymentCallbackSerializer,
 )
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+    OpenApiResponse,
+    OpenApiTypes,
+    OpenApiExample
+)
 
 User = get_user_model()
 
 # ------------------------
 # Subscription Plans
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Subscription Plans"],
+        summary="List subscription plans",
+        description="Retrieve a list of all available subscription plans ordered by price.",
+        responses={200: SubscriptionPlanSerializer},
+        auth=[],  # public endpoint
+    )
+)
 class SubscriptionPlanListView(generics.ListAPIView):
     queryset = SubscriptionPlan.objects.all().order_by("price")
     serializer_class = SubscriptionPlanSerializer
     permission_classes = [permissions.AllowAny]
 
-
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Subscription Plans"],
+        summary="Retrieve subscription plan details",
+        description="Retrieve details of a specific subscription plan by ID.",
+        responses={200: SubscriptionPlanSerializer},
+        auth=[],  # public endpoint
+    )
+)
 class SubscriptionPlanDetailView(generics.RetrieveAPIView):
     queryset = SubscriptionPlan.objects.all()
     serializer_class = SubscriptionPlanSerializer
@@ -36,6 +61,14 @@ class SubscriptionPlanDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Subscriptions
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Subscriptions"],
+        summary="List subscriptions",
+        description="Retrieve a list of subscriptions for the authenticated user.",
+        responses={200: SubscriptionListSerializer},
+    )
+)
 class SubscriptionListView(generics.ListAPIView):
     serializer_class = SubscriptionListSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -47,7 +80,14 @@ class SubscriptionListView(generics.ListAPIView):
             .order_by("-start_date")
         )
 
-
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Subscriptions"],
+        summary="Retrieve subscription details",
+        description="Retrieve details of a specific subscription for the authenticated user.",
+        responses={200: SubscriptionDetailSerializer},
+    )
+)
 class SubscriptionDetailView(generics.RetrieveAPIView):
     serializer_class = SubscriptionDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -63,6 +103,14 @@ class SubscriptionDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Payments
 # ------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Payments"],
+        summary="List payments",
+        description="Retrieve a list of payments related to the authenticated user’s subscriptions.",
+        responses={200: PaymentSerializer},
+    )
+)
 class PaymentListView(generics.ListAPIView):
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -74,7 +122,14 @@ class PaymentListView(generics.ListAPIView):
             .order_by("-created_at")
         )
 
-
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Payments"],
+        summary="Retrieve payment details",
+        description="Retrieve details of a specific payment belonging to the authenticated user.",
+        responses={200: PaymentSerializer},
+    )
+)
 class PaymentDetailView(generics.RetrieveAPIView):
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -87,6 +142,36 @@ class PaymentDetailView(generics.RetrieveAPIView):
 # ------------------------
 # Checkout
 # ------------------------
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Checkout"],
+        summary="Create subscription checkout session",
+        description=(
+            "Create a Stripe Checkout session for a subscription plan. "
+            "Returns a checkout URL that the client can redirect the user to."
+        ),
+        request=OpenApiTypes.OBJECT,  # you can replace with a small serializer if you prefer
+        examples=[
+            OpenApiExample(
+                "Checkout request",
+                value={"plan_id": 1},
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="Checkout session created successfully",
+                response=OpenApiTypes.OBJECT,
+                examples=[
+                    OpenApiExample(
+                        "Checkout response",
+                        value={"checkout_url": "https://checkout.stripe.com/test-session"},
+                    )
+                ],
+            ),
+            400: OpenApiResponse(description="Invalid request"),
+        },
+    )
+)
 class SubscriptionCheckoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -119,6 +204,20 @@ class SubscriptionCheckoutView(APIView):
         # except Exception as e:
         #     return Response({"error": str(e)}, status=500)
         
+
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Payments"],
+        summary="Payment callback (Stripe webhook)",
+        description=(
+            "Endpoint used by Stripe webhook / internal service. "
+            "Updates subscription status based on payment result."
+        ),
+        auth=[],  # service-to-service secured by token, not user auth
+        request=PaymentCallbackSerializer,
+        responses={200: OpenApiResponse(description="Payment processed successfully")},
+    )
+)
 class PaymentCallbackView(APIView):
     permission_classes = [IsServiceToken]
 

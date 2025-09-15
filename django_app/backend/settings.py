@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'djoser',
+    'drf_spectacular',
     # "debug_toolbar",
 
     
@@ -174,6 +175,37 @@ REST_FRAMEWORK = {
         'send_otp': '3/minute',
         'verify_otp': '5/minute',
     },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MicroLearn API',
+    'DESCRIPTION': 'API for the MicroLearn project',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SECURITY': [{'BearerAuth': []}], 
+    'SWAGGER_UI_SETTINGS': {'persistAuthorization': True},
+    'TAGS': [
+        {'name': 'Accounts', 'description': 'Authentication, registration, OTP, user management'},
+        {'name': 'Categories', 'description': 'Browse and retrieve course categories'},
+        {'name': 'Courses', 'description': 'List published courses and view course details'},
+        {'name': 'Enrollments', 'description': 'Enrollments management for users (enroll/unenroll)'},
+        {'name': 'Lesson Progress', 'description': 'Track user progress through course lessons'},
+        {'name': 'Quizzes', 'description': 'Course quizzes and related questions'},
+        {'name': 'Quiz Attempts', 'description': 'Students’ quiz attempts and submissions'},
+        {'name': 'Quiz Grading', 'description': 'AI grading callback endpoints (service-to-service)'},
+        {'name': 'Subscription Plans', 'description': 'Available subscription plans for users'},
+        {'name': 'Subscriptions', 'description': 'Manage user subscriptions and statuses'},
+        {'name': 'Payments', 'description': 'Payment history and payment details'},
+        {'name': 'Checkout', 'description': 'Stripe checkout session creation for subscriptions'},
+    ],
+    
+    
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.hooks.postprocess_schema_enums',
+        'backend.schema_hooks.move_auth_to_accounts',
+    ],
 }
 
 SIMPLE_JWT = {
