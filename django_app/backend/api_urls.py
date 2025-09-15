@@ -29,4 +29,4 @@ urlpatterns = [
     
     # Quizzes
     path('quiz/', include('quizzes.urls')),
-] + debug_toolbar_urls()
+] #+ debug_toolbar_urls()

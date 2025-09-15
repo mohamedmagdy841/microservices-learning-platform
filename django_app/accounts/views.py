@@ -41,9 +41,7 @@ class CustomLoginView(APIView):
 
     
 class CustomRegisterView(generics.CreateAPIView):
-    throttle_scope = 'register'
-    queryset = User.objects.all()
-    serializer_class = CustomUserCreateSerializer
+    pass
 
 class SendOtpView(APIView):
     throttle_scope = 'send_otp'

@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
@@ -42,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'djoser',
-    "debug_toolbar",
+    # "debug_toolbar",
 
     
     'accounts',
@@ -57,7 +56,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -236,3 +235,58 @@ RABBITMQ_HOST = config("RABBITMQ_HOST", default="localhost")
 RABBITMQ_USER = config("RABBITMQ_USER")
 RABBITMQ_PASS = config("RABBITMQ_PASS")
 RABBITMQ_QUEUE = config("RABBITMQ_QUEUE")
+
+# Security headers
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# SSL / HTTPS
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=True, cast=bool)
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
+
+# HSTS (enable once you confirm HTTPS is working everywhere)
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True, cast=bool)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=True, cast=bool)
+
+# CORS
+CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="")
+CORS_ALLOW_CREDENTIALS = True
+
+# Required if using HttpOnly cookies with cross-site frontend
+SESSION_COOKIE_SAMESITE = config("SESSION_COOKIE_SAMESITE", default="None")
+SESSION_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SAMESITE = config("CSRF_COOKIE_SAMESITE", default="None")
+CSRF_COOKIE_HTTPONLY = True
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+
+# Logs
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django.security": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}
