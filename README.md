@@ -66,6 +66,7 @@ The system consists of **Django (monolith)**, **FastAPI microservices**, and **R
 
 ## Database Schema (High-Level)
 
+<img width="3662" height="2656" alt="drawSQL-image-export-2025-09-15" src="https://github.com/user-attachments/assets/417627b6-3052-4315-99c2-768b91edf5d0" />
 
 ---
 
@@ -143,6 +144,5 @@ The system consists of **Django (monolith)**, **FastAPI microservices**, and **R
 
 ## Demo
 
-* Swagger Docs (Django): `https://microlearn.mo-magdy.com/api/v1/schema/swagger-ui/`
-* Postman Collection: [View Here](#)
-
+* Swagger Docs (Django): [https://microlearn.mo-magdy.com/api/v1/schema/swagger-ui/](https://microlearn.mo-magdy.com/api/v1/schema/swagger-ui/)
+* Postman Collection: [View Here](https://documenter.getpostman.com/view/38857071/2sB3HqHJX3)
