@@ -19,7 +19,6 @@ def clean_output(text: str) -> str:
     """
     Extract 'true' or 'false' from model output reliably.
     """
-    # Remove special tokens like <bos>, <start_of_turn>, etc.
     cleaned = re.sub(r"<.*?>", "", text)
     cleaned = cleaned.strip().lower()
 
@@ -66,8 +65,16 @@ def grade_quiz(answers: List[Dict]) -> Dict:
 
         result = clean_output(raw)
         is_correct = (result == "true")
-
-        print(f"[DEBUG] Q: {question} | A: {chosen} | Raw: {raw} | Parsed: {result}")
+        raw_answer = raw[len(chat_input):].strip()
+        
+        print("─────────────────────────────")
+        print(f"[DEBUG] Question    : {question}")
+        if correct:
+            print(f"[DEBUG] Correct Ans: {correct}")
+        print(f"[DEBUG] Student Ans: {chosen}")
+        print(f"[DEBUG] Model Raw  : {raw_answer}")
+        print(f"[DEBUG] Parsed     : {result} → {is_correct}")
+        print("─────────────────────────────")
 
         graded.append({
             "question_id": ans["question_id"],
