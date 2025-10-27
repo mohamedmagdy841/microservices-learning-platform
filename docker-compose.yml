@@ -13,13 +13,20 @@ services:
       - "8000"
     networks:
       - custom-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
 
   microlearn_nginx:
     image: nginx:alpine
     container_name: microlearn_nginx
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     volumes:
       - static_volume:/staticfiles:ro
       - media_volume:/mediafiles:ro
